@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -26,12 +27,14 @@ func main() {
 func forwardRequest(rw http.ResponseWriter, req *http.Request) {
 	url := getServer()
 	reverseProxy := httputil.NewSingleHostReverseProxy(url)
+	fmt.Println("Routing request to the server", url)
 	reverseProxy.ServeHTTP(rw, req)
 }
 
 func getServer() *url.URL {
-	url, err := url.Parse(servers[(lastServedIndex + 1) % 5])
-	lastServedIndex++
+	nextIndex := (lastServedIndex + 1) % 5
+	url, err := url.Parse(servers[lastServedIndex])
+	lastServedIndex = nextIndex
 	if err != nil {
 		log.Fatal(err)
 	}
